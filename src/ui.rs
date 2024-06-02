@@ -121,12 +121,31 @@ pub fn ui(f: &mut Frame, app: &App) -> Result<(), Box<dyn std::error::Error>> {
             .block(create_panel_block(MyWidgetType::SongTop, app)),
         panel_chunk_left[1],
     );
+
+    let recently_played_rows: Vec<Row> = app
+        .recently_played
+        .items
+        .iter()
+        .enumerate()
+        .map(|(i, ph)| Row::new(vec![format!("{:>2}. {}", i + 1, ph.clone().track.name)]))
+        .collect::<Vec<Row>>();
+
     f.render_widget(
-        Paragraph::new("Right Panel 0").block(create_panel_block(MyWidgetType::Recent, app)),
+        Table::new(recently_played_rows, [Constraint::Percentage(100)])
+            .block(create_panel_block(MyWidgetType::Recent, app)),
         panel_chunk_right[0],
     );
+
+    let playlists_rows: Vec<Row> = app
+        .playlists
+        .items
+        .iter()
+        .enumerate()
+        .map(|(i, playlists)| Row::new(vec![format!("{:>2}. {}", i + 1, playlists.name)]))
+        .collect::<Vec<Row>>();
     f.render_widget(
-        Paragraph::new("Right  Panel 1").block(create_panel_block(MyWidgetType::Playlist, app)),
+        Table::new(playlists_rows, [Constraint::Percentage(100)])
+            .block(create_panel_block(MyWidgetType::Playlist, app)),
         panel_chunk_right[1],
     );
 

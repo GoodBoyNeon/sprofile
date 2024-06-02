@@ -29,7 +29,7 @@ function auth() {
 
   app.get('/login', (_, res) => {
     const state = genRandomStr(16);
-    const scope = 'user-top-read';
+    const scope = 'user-top-read user-read-recently-played playlist-read-private';
 
     res.redirect(`${AUTH_URL}?${querystring.stringify({
       response_type: 'code',

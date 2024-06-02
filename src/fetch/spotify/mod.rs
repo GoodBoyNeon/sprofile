@@ -144,3 +144,79 @@ pub async fn get_top_tracks(time_range: TimeRange) -> Result<TopTracks, Box<dyn 
 
     Ok(res)
 }
+
+#[derive(Deserialize, Debug)]
+pub struct PlayHistory {
+    pub track: Track,
+    pub played_at: String,
+}
+#[derive(Deserialize, Debug)]
+pub struct RecentlyPlayed {
+    pub href: String,
+    pub limit: u8,
+    pub next: Option<String>,
+    pub items: Vec<PlayHistory>,
+}
+pub async fn get_recently_played() -> Result<RecentlyPlayed, Box<dyn Error>> {
+    let token = get_access_token().await?;
+
+    let client = Client::new();
+    let url = format!("{}/{}/{}/{}", BASE_URL, "me", "player", "recently-played");
+
+    let res = client
+        .get(&url)
+        .bearer_auth(token)
+        .query(&[("limit", "50")])
+        .send()
+        .await?
+        .json::<RecentlyPlayed>()
+        .await?;
+
+    Ok(res)
+}
+
+#[derive(Deserialize, Debug)]
+pub struct SimplifiedTrack {
+    pub href: String,
+    pub total: u32,
+}
+#[derive(Deserialize, Debug)]
+pub struct SimplifiedPlaylist {
+    pub collaborative: bool,
+    pub description: Option<String>,
+    pub href: String,
+    pub id: String,
+    pub name: String,
+    pub public: Option<bool>,
+    pub snapshot_id: String,
+    // pub tracks: Option<Vec<Option<SimplifiedTrack>>>,
+    pub uri: String,
+}
+#[derive(Deserialize, Debug)]
+pub struct Playlists {
+    pub href: String,
+    pub limit: u8,
+    pub next: Option<String>,
+    pub offset: u32,
+    pub previous: Option<String>,
+    pub total: u32,
+    pub items: Vec<SimplifiedPlaylist>,
+}
+
+pub async fn get_playlists() -> Result<Playlists, Box<dyn Error>> {
+    let token = get_access_token().await?;
+
+    let client = Client::new();
+    let url = format!("{}/{}/{}", BASE_URL, "me", "playlists");
+
+    let res = client
+        .get(&url)
+        .bearer_auth(token)
+        .query(&[("limit", "50")])
+        .send()
+        .await?
+        .json::<Playlists>()
+        .await?;
+
+    Ok(res)
+}
