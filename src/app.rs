@@ -1,12 +1,21 @@
 use std::error::Error;
 
+use ratatui::widgets::ListState;
+
 use crate::{
     fetch::spotify::{
         get_playlists, get_recently_played, get_top_artists, get_top_tracks, get_user_profile,
         Playlists, RecentlyPlayed, TopArtists, TopTracks, UserProfile,
     },
-    ui::MyWidgetType,
+    ui::Panel,
 };
+
+// pub struct PanelStates {
+//     pub top_artists_state:
+//     pub top_tracks_state:
+//     pub recently_played_state:
+//     pub playlists_state:
+// }
 
 pub enum CurrentScreen {
     Main,
@@ -16,12 +25,16 @@ pub enum CurrentScreen {
 
 pub struct App {
     pub current_screen: CurrentScreen,
-    pub current_panel: MyWidgetType,
+    pub current_panel: Panel,
     pub user_profile: UserProfile,
     pub top_artists: TopArtists,
     pub top_tracks: TopTracks,
     pub recently_played: RecentlyPlayed,
     pub playlists: Playlists,
+    pub top_tracks_state: ListState,
+    pub top_artists_state: ListState,
+    pub recently_played_state: ListState,
+    pub playlists_state: ListState,
 }
 
 impl App {
@@ -33,13 +46,25 @@ impl App {
         playlists: Playlists,
     ) -> Self {
         App {
-            current_panel: MyWidgetType::Recent,
+            current_panel: Panel::RecentlyPlayed,
             current_screen: CurrentScreen::Main,
             user_profile,
             top_artists,
             top_tracks,
             recently_played,
             playlists,
+            top_tracks_state: ListState::default(),
+            top_artists_state: ListState::default(),
+            recently_played_state: ListState::default(),
+            playlists_state: ListState::default(),
+        }
+    }
+    pub fn get_current_panel_state(&mut self) -> &mut ListState {
+        match self.current_panel {
+            Panel::TopArtists => &mut self.top_artists_state,
+            Panel::TopSongs => &mut self.top_tracks_state,
+            Panel::RecentlyPlayed => &mut self.recently_played_state,
+            Panel::Playlists => &mut self.recently_played_state,
         }
     }
 }

@@ -2,11 +2,15 @@ use std::{
     error::Error,
     fs,
     process::Command,
+    sync::mpsc::Sender,
     thread,
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
+use crossterm::event::KeyEvent;
 use dirs::home_dir;
+
+use crate::app::App;
 
 pub enum SecretType {
     AccessToken,
@@ -57,3 +61,5 @@ pub async fn get_access_token() -> Result<String, Box<dyn Error>> {
 
     Ok(access_token)
 }
+
+pub fn handle_keys(event: KeyEvent, app: &mut App) {}

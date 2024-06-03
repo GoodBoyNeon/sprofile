@@ -5,14 +5,14 @@ mod utils;
 use anyhow::Result;
 use app::{init_app, CurrentScreen};
 use crossterm::{
-    event::{self, Event, KeyCode},
+    event::{self, EnableMouseCapture, Event, KeyCode},
     execute,
-    terminal::{disable_raw_mode, enable_raw_mode},
+    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen},
 };
 use ratatui::{backend::CrosstermBackend, Terminal};
-use std::{process::Command, thread, time::Duration};
+use std::{io::stdout, process::Command, thread, time::Duration};
 
-use ui::ui;
+use ui::{ui, Panel};
 use utils::{read_secret, SecretType};
 
 #[tokio::main]
@@ -29,31 +29,52 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Sync + Send + 'static>
     }
 
     // startup
-    enable_raw_mode()?;
-    execute!(std::io::stdout(), crossterm::terminal::EnterAlternateScreen)?;
 
-    // let _ = run().await;
-    let mut t = Terminal::new(CrosstermBackend::new(std::io::stdout()))?;
+    let mut stdout = stdout();
+    execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
+    enable_raw_mode()?;
+
+    let mut terminal = Terminal::new(CrosstermBackend::new(stdout))?;
 
     match init_app().await {
         Ok(mut app) => {
             loop {
-                t.draw(|f| {
-                    ui(f, &mut app);
+                let _ = terminal.draw(|f| {
+                    let _ = ui(f, &mut app);
                 });
-
                 if let Event::Key(key) = event::read()? {
-                    // dbg!()
-                    if key.kind == event::KeyEventKind::Release {
-                        continue;
+                    // dbg!();
+                    // if key.kind == event::KeyEventKind::Release {
+                    //     continue;
+                    // }
+                    match key.code {
+                        KeyCode::Char('q') => break,
+                        KeyCode::Char('k') => {
+                            let i = match app.get_current_panel_state().selected() {
+                                Some(i) => i - 1,
+                                None => 0,
+                            };
+                            app.get_current_panel_state().select(Some(i));
+                        }
+                        KeyCode::Char('j') => {
+                            let i = match app.get_current_panel_state().selected() {
+                                Some(i) => i + 1,
+                                None => 0,
+                            };
+                            app.get_current_panel_state().select(Some(i));
+                        }
+                        _ => {}
                     }
                     match app.current_screen {
                         /* Main Screen Keybinds */
-                        app::CurrentScreen::Main => {
-                            if let KeyCode::Char('q') = key.code {
-                                break;
-                            }
-                        }
+                        app::CurrentScreen::Main => match key.code {
+                            KeyCode::Char('q') => break,
+                            KeyCode::Char('1') => app.current_panel = Panel::TopArtists,
+                            KeyCode::Char('2') => app.current_panel = Panel::TopSongs,
+                            KeyCode::Char('3') => app.current_panel = Panel::RecentlyPlayed,
+                            KeyCode::Char('4') => app.current_panel = Panel::Playlists,
+                            _ => {}
+                        },
                         /* Artist Screen Keybinds */
                         app::CurrentScreen::Artist => {
                             if let KeyCode::Char('q') = key.code {
