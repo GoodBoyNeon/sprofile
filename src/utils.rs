@@ -1,16 +1,11 @@
+use dirs::home_dir;
 use std::{
     error::Error,
     fs,
     process::Command,
-    sync::mpsc::Sender,
     thread,
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
-
-use crossterm::event::KeyEvent;
-use dirs::home_dir;
-
-use crate::app::App;
 
 pub enum SecretType {
     AccessToken,
@@ -50,7 +45,7 @@ pub async fn get_access_token() -> Result<String, Box<dyn Error>> {
         let server_path = "server/index.js";
         let refresh = read_secret(SecretType::RefreshToken).unwrap();
 
-        let mut child = Command::new(node_path).arg(server_path).args([server_path, "refresh", &refresh]).spawn().expect("Failed to start authentication server! Please ensure \"node\" installed and exists in PATH");
+        let mut child = Command::new(node_path).args([server_path, "refresh", &refresh]).spawn().expect("Failed to start authentication server! Please ensure \"node\" installed and exists in PATH");
 
         thread::sleep(Duration::from_secs(2));
 
@@ -61,5 +56,3 @@ pub async fn get_access_token() -> Result<String, Box<dyn Error>> {
 
     Ok(access_token)
 }
-
-pub fn handle_keys(event: KeyEvent, app: &mut App) {}

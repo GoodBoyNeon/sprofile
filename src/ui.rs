@@ -2,7 +2,7 @@ use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout},
     style::{Color, Modifier, Style, Stylize},
     text::Text,
-    widgets::{Block, Borders, List, Paragraph, Row, Table},
+    widgets::{Block, Borders, List, Paragraph},
     Frame,
 };
 use std::collections::HashMap;
@@ -27,7 +27,9 @@ pub fn ui(f: &mut Frame, app: &mut App) -> Result<(), Box<dyn std::error::Error>
         ])
         .split(f.size());
 
-    let title_blk = Block::default().style(Style::default());
+    let title_blk = Block::default()
+        .style(Style::default())
+        .title_alignment(Alignment::Center);
 
     let username = &app.user_profile.display_name;
 
@@ -58,6 +60,7 @@ pub fn ui(f: &mut Frame, app: &mut App) -> Result<(), Box<dyn std::error::Error>
     /* PANELS */
     let top_artists: Vec<String> = app
         .top_artists
+        .data
         .items
         .iter()
         .enumerate()
@@ -71,11 +74,12 @@ pub fn ui(f: &mut Frame, app: &mut App) -> Result<(), Box<dyn std::error::Error>
             .highlight_symbol(">>")
             .repeat_highlight_symbol(true),
         panel_chunk_left[0],
-        &mut app.top_artists_state,
+        &mut app.top_artists.state,
     );
 
     let top_tracks_rows: Vec<String> = app
         .top_tracks
+        .data
         .items
         .iter()
         .enumerate()
@@ -89,11 +93,12 @@ pub fn ui(f: &mut Frame, app: &mut App) -> Result<(), Box<dyn std::error::Error>
             .highlight_symbol(">>")
             .repeat_highlight_symbol(true),
         panel_chunk_left[1],
-        &mut app.top_tracks_state,
+        &mut app.top_tracks.state,
     );
 
     let recently_played_rows: Vec<String> = app
         .recently_played
+        .data
         .items
         .iter()
         .enumerate()
@@ -107,11 +112,12 @@ pub fn ui(f: &mut Frame, app: &mut App) -> Result<(), Box<dyn std::error::Error>
             .highlight_symbol(">>")
             .repeat_highlight_symbol(true),
         panel_chunk_right[0],
-        &mut app.recently_played_state,
+        &mut app.recently_played.state,
     );
 
     let playlists_rows: Vec<String> = app
         .playlists
+        .data
         .items
         .iter()
         .enumerate()
@@ -125,7 +131,7 @@ pub fn ui(f: &mut Frame, app: &mut App) -> Result<(), Box<dyn std::error::Error>
             .highlight_symbol(">>")
             .repeat_highlight_symbol(true),
         panel_chunk_right[1],
-        &mut app.playlists_state,
+        &mut app.playlists.state,
     );
 
     Ok(())

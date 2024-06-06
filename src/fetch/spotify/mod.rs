@@ -67,7 +67,7 @@ pub struct Track {
     pub is_local: bool,
 }
 #[derive(Deserialize, Debug)]
-pub struct TopTracks {
+pub struct TopTracksData {
     pub href: String,
     pub limit: u8,
     pub next: Option<String>,
@@ -78,7 +78,7 @@ pub struct TopTracks {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct TopArtists {
+pub struct TopArtistsData {
     pub href: String,
     pub limit: u8,
     pub next: Option<String>,
@@ -88,7 +88,7 @@ pub struct TopArtists {
     pub items: Vec<Artist>,
 }
 
-pub async fn get_top_artists(time_range: TimeRange) -> Result<TopArtists, Box<dyn Error>> {
+pub async fn get_top_artists(time_range: TimeRange) -> Result<TopArtistsData, Box<dyn Error>> {
     let token = get_access_token().await?;
 
     let client = Client::new();
@@ -111,12 +111,12 @@ pub async fn get_top_artists(time_range: TimeRange) -> Result<TopArtists, Box<dy
         .bearer_auth(token)
         .send()
         .await?
-        .json::<TopArtists>()
+        .json::<TopArtistsData>()
         .await?;
 
     Ok(res)
 }
-pub async fn get_top_tracks(time_range: TimeRange) -> Result<TopTracks, Box<dyn Error>> {
+pub async fn get_top_tracks(time_range: TimeRange) -> Result<TopTracksData, Box<dyn Error>> {
     let token = get_access_token().await?;
 
     let client = Client::new();
@@ -139,7 +139,7 @@ pub async fn get_top_tracks(time_range: TimeRange) -> Result<TopTracks, Box<dyn 
         .bearer_auth(token)
         .send()
         .await?
-        .json::<TopTracks>()
+        .json::<TopTracksData>()
         .await?;
 
     Ok(res)
@@ -151,13 +151,13 @@ pub struct PlayHistory {
     pub played_at: String,
 }
 #[derive(Deserialize, Debug)]
-pub struct RecentlyPlayed {
+pub struct RecentlyPlayedData {
     pub href: String,
     pub limit: u8,
     pub next: Option<String>,
     pub items: Vec<PlayHistory>,
 }
-pub async fn get_recently_played() -> Result<RecentlyPlayed, Box<dyn Error>> {
+pub async fn get_recently_played() -> Result<RecentlyPlayedData, Box<dyn Error>> {
     let token = get_access_token().await?;
 
     let client = Client::new();
@@ -169,7 +169,7 @@ pub async fn get_recently_played() -> Result<RecentlyPlayed, Box<dyn Error>> {
         .query(&[("limit", "50")])
         .send()
         .await?
-        .json::<RecentlyPlayed>()
+        .json::<RecentlyPlayedData>()
         .await?;
 
     Ok(res)
@@ -193,7 +193,7 @@ pub struct SimplifiedPlaylist {
     pub uri: String,
 }
 #[derive(Deserialize, Debug)]
-pub struct Playlists {
+pub struct PlaylistsData {
     pub href: String,
     pub limit: u8,
     pub next: Option<String>,
@@ -203,7 +203,7 @@ pub struct Playlists {
     pub items: Vec<SimplifiedPlaylist>,
 }
 
-pub async fn get_playlists() -> Result<Playlists, Box<dyn Error>> {
+pub async fn get_playlists() -> Result<PlaylistsData, Box<dyn Error>> {
     let token = get_access_token().await?;
 
     let client = Client::new();
@@ -215,7 +215,7 @@ pub async fn get_playlists() -> Result<Playlists, Box<dyn Error>> {
         .query(&[("limit", "50")])
         .send()
         .await?
-        .json::<Playlists>()
+        .json::<PlaylistsData>()
         .await?;
 
     Ok(res)
