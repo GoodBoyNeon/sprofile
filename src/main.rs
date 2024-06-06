@@ -69,7 +69,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Sync + Send + 'static>
                     }
                     match app.current_screen {
                         /* Main Screen Keybinds */
-                        app::CurrentScreen::Main => match key.code {
+                        CurrentScreen::Main => match key.code {
                             KeyCode::Char('q') => break,
                             KeyCode::Char('1') => app.current_panel = Panel::TopArtists,
                             KeyCode::Char('2') => app.current_panel = Panel::TopSongs,
@@ -77,18 +77,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Sync + Send + 'static>
                             KeyCode::Char('4') => app.current_panel = Panel::Playlists,
                             _ => {}
                         },
-                        /* Artist Screen Keybinds */
-                        app::CurrentScreen::Artist => {
-                            if let KeyCode::Char('q') = key.code {
-                                app.current_screen = CurrentScreen::Main
-                            }
-                        }
-                        /* Playlist Screen Keybinds */
-                        app::CurrentScreen::Playlist => {
-                            if let KeyCode::Char('q') = key.code {
-                                app.current_screen = CurrentScreen::Main
-                            }
-                        }
                     }
                 }
             }

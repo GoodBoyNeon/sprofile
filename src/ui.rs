@@ -1,7 +1,7 @@
 use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout},
     style::{Color, Modifier, Style, Stylize},
-    widgets::{block::Title, Block, Borders, List},
+    widgets::{Block, Borders, List},
     Frame,
 };
 use std::collections::HashMap;
