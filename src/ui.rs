@@ -1,8 +1,7 @@
 use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout},
     style::{Color, Modifier, Style, Stylize},
-    text::Text,
-    widgets::{Block, Borders, List, Paragraph},
+    widgets::{block::Title, Block, Borders, List},
     Frame,
 };
 use std::collections::HashMap;
@@ -27,19 +26,16 @@ pub fn ui(f: &mut Frame, app: &mut App) -> Result<(), Box<dyn std::error::Error>
         ])
         .split(f.size());
 
+    let username = &app.user_profile.display_name;
+    let title = format!(" {} ", username);
+
     let title_blk = Block::default()
         .style(Style::default())
+        .title(title.to_string())
+        .title_style(Style::new().fg(Color::Black).bold().bg(Color::Blue))
         .title_alignment(Alignment::Center);
 
-    let username = &app.user_profile.display_name;
-
-    let title_text = Paragraph::new(
-        Text::styled(username, Style::default().fg(Color::Cyan).bold())
-            .alignment(Alignment::Center),
-    )
-    .block(title_blk);
-
-    f.render_widget(title_text, main_chunks[0]);
+    f.render_widget(title_blk, main_chunks[0]);
 
     // Main screen
     let panel_chunk_container = Layout::default()
