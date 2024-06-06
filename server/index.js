@@ -23,7 +23,7 @@ const genRandomStr = (length) => {
 
 function auth() {
   const server = app.listen(PORT, () => {
-    console.log(`Local authentication server running on port ${PORT}`);
+    console.log(`Local authentication server running on  http://localhost:${PORT}. Please check your browser and authenticate.`);
   })
 
   app.get('/login', (_, res) => {
@@ -62,7 +62,6 @@ function auth() {
 if (process.argv[2] == "refresh") {
   const refresh_token = process.argv[3];
   const response = await refreshAccessToken(refresh_token);
-  console.log(response.data)
   writeSecrets(response.data);
 } else {
   auth();
@@ -74,9 +73,8 @@ if (process.argv[2] == "refresh") {
  * to reduce repetition
  */
 export function writeSecrets(data) {
-  console.log(data);
   const { access_token, refresh_token, expires_in } = data;
   writeSecret('access_token', access_token);
-  refresh_token ?? writeSecret('refresh_token', refresh_token);
+  refresh_token && writeSecret('refresh_token', refresh_token);
   writeSecret('expires_in', (Math.floor(Date.now() / 1000) + expires_in).toString());
 }
