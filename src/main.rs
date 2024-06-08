@@ -1,6 +1,6 @@
 use app::{init_app, CurrentScreen};
 use crossterm::{
-    event::{self, EnableMouseCapture, Event, KeyCode},
+    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
@@ -79,8 +79,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Sync + Send + 'static>
     }
 
     let mut stdout = stdout();
-    execute!(stdout, /*EnterAlternateScreen,*/ EnableMouseCapture)?;
-    // enable_raw_mode()?;
+    execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
+    enable_raw_mode()?;
 
     let mut terminal = Terminal::new(CrosstermBackend::new(stdout))?;
 
@@ -139,8 +139,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Sync + Send + 'static>
     }
 
     // shutdown
-    crossterm::execute!(std::io::stdout() /*LeaveAlternateScreen*/,)?;
-    // disable_raw_mode()?;
+    crossterm::execute!(std::io::stdout(), LeaveAlternateScreen, DisableMouseCapture)?;
+    disable_raw_mode()?;
 
     Ok(())
 }
