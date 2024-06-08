@@ -1,10 +1,12 @@
 import axios from "axios";
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 
 const REDIRECT_URI = 'http://localhost:8585/callback';
 const TOKEN_URL = 'https://accounts.spotify.com/api/token';
-const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
-const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
-
+const CLIENT_ID = fs.readFileSync(path.join(os.homedir(), '.sprofile', 'client_id.txt'), { encoding: 'utf-8' }).trim();
+const CLIENT_SECRET = fs.readFileSync(path.join(os.homedir(), '.sprofile', 'client_secret.txt'), { encoding: 'utf-8' }).trim();
 const headers = {
   'content-type': 'application/x-www-form-urlencoded',
   'Authorization': `Basic ${Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64')}`

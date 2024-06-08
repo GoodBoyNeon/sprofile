@@ -1,6 +1,9 @@
 import 'dotenv/config.js'
 import open from 'open'
 import express from 'express';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 import querystring from 'querystring';
 import { writeSecret } from './writeSecret.js';
 import { fetchAuthorizationCode, refreshAccessToken } from './token.js';
@@ -9,7 +12,7 @@ const app = express();
 
 const REDIRECT_URI = 'http://localhost:8585/callback';
 const AUTH_URL = 'https://accounts.spotify.com/authorize';
-const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
+const CLIENT_ID = fs.readFileSync(path.join(os.homedir(), '.sprofile', 'client_id.txt'), { encoding: 'utf-8' }).trim();
 const PORT = 8585;
 
 const genRandomStr = (length) => {
