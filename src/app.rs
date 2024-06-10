@@ -3,7 +3,7 @@ use std::error::Error;
 use ratatui::widgets::ListState;
 
 use crate::{
-    fetch::spotify::{
+    controllers::fetch::{
         get_playlists, get_recently_played, get_top_artists, get_top_tracks, get_user_profile,
         PlaylistsData, RecentlyPlayedData, TimeRange, TopArtistsData, TopTracksData, UserProfile,
     },

@@ -19,7 +19,11 @@ pub struct UserProfile {
 }
 
 pub async fn get_user_profile() -> Result<UserProfile, Box<dyn Error>> {
-    let token = get_access_token().await?;
+    let token = get_access_token()
+        .await
+        .expect("ACCESS_TOKEN not found")
+        .trim()
+        .to_owned();
 
     let client = Client::new();
     let url = format!("{}/{}", BASE_URL, "me");
@@ -89,7 +93,11 @@ pub struct TopArtistsData {
 }
 
 pub async fn get_top_artists(time_range: TimeRange) -> Result<TopArtistsData, Box<dyn Error>> {
-    let token = get_access_token().await?;
+    let token = get_access_token()
+        .await
+        .expect("ACCESS_TOKEN not found")
+        .trim()
+        .to_owned();
 
     let client = Client::new();
     let url = format!("{}/{}/{}/{}", BASE_URL, "me", "top", "artists",);
@@ -117,8 +125,11 @@ pub async fn get_top_artists(time_range: TimeRange) -> Result<TopArtistsData, Bo
     Ok(res)
 }
 pub async fn get_top_tracks(time_range: TimeRange) -> Result<TopTracksData, Box<dyn Error>> {
-    let token = get_access_token().await?;
-
+    let token = get_access_token()
+        .await
+        .expect("ACCESS_TOKEN not found")
+        .trim()
+        .to_owned();
     let client = Client::new();
     let url = format!("{}/{}/{}/{}", BASE_URL, "me", "top", "tracks");
 
@@ -158,7 +169,11 @@ pub struct RecentlyPlayedData {
     pub items: Vec<PlayHistory>,
 }
 pub async fn get_recently_played() -> Result<RecentlyPlayedData, Box<dyn Error>> {
-    let token = get_access_token().await?;
+    let token = get_access_token()
+        .await
+        .expect("ACCESS_TOKEN not found")
+        .trim()
+        .to_owned();
 
     let client = Client::new();
     let url = format!("{}/{}/{}/{}", BASE_URL, "me", "player", "recently-played");
@@ -204,7 +219,11 @@ pub struct PlaylistsData {
 }
 
 pub async fn get_playlists() -> Result<PlaylistsData, Box<dyn Error>> {
-    let token = get_access_token().await?;
+    let token = get_access_token()
+        .await
+        .expect("ACCESS_TOKEN not found")
+        .trim()
+        .to_owned();
 
     let client = Client::new();
     let url = format!("{}/{}/{}", BASE_URL, "me", "playlists");

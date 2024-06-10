@@ -1,19 +1,17 @@
 use app::{init_app, CurrentScreen};
+use controllers::server::rocket;
 use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
+    event::{self, Event, KeyCode},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use ratatui::{backend::CrosstermBackend, Terminal};
-use std::{
-    io::{stdin, stdout, Write},
-    process::Command,
-};
+use std::io::{stdin, stdout, Write};
 use ui::{ui, Panel};
 use utils::{read_secret, write_secret, SecretType};
 
 mod app;
-mod fetch;
+mod controllers;
 mod ui;
 mod utils;
 
@@ -65,21 +63,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Sync + Send + 'static>
     }
 
     if read_secret(SecretType::AccessToken).is_none() {
-        let node_path = "node";
-        let server_path = "server/index.js";
+        let rocket = rocket().ignite().await.expect("Rocket didn't ignite.");
 
-        let mut child = Command::new(node_path)
-            .args([server_path, "auth"])
-            .spawn()
-            .expect(
-                "Failed to start authentication server! Ensure node installed and exists in PATH",
-            );
+        let shutdown_handle = rocket.shutdown();
 
-        let _ = child.wait().expect("Failed to wait on child process");
+        tokio::spawn(async move {
+            let _ = tokio::signal::ctrl_c().await;
+            shutdown_handle.notify();
+        });
+
+        if webbrowser::open("http://localhost:8585/login").is_ok() {
+            println!("Authentication server running on http://localhost:8585/login. Please check your browser ");
+        } else {
+            println!("Failed to open web browser. Please visit http://localhost:8585/login to authenticate");
+        };
+
+        if let Err(err) = rocket.launch().await {
+            eprintln!("Rocket didn't launch: {}", err);
+        }
     }
 
     let mut stdout = stdout();
-    execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
+    execute!(stdout, EnterAlternateScreen)?;
     enable_raw_mode()?;
 
     let mut terminal = Terminal::new(CrosstermBackend::new(stdout))?;
@@ -139,7 +144,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Sync + Send + 'static>
     }
 
     // shutdown
-    crossterm::execute!(std::io::stdout(), LeaveAlternateScreen, DisableMouseCapture)?;
+    crossterm::execute!(std::io::stdout(), LeaveAlternateScreen)?;
     disable_raw_mode()?;
 
     Ok(())
