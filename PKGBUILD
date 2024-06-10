@@ -2,7 +2,7 @@
 
 pkgname='sprofile'
 pkgver=0.1.0
-pkgrel=1
+pkgrel=2
 epoch=
 pkgdesc="A tool for accessing your spotify statistics without ever leaving the terminal"
 arch=('x86_64')
