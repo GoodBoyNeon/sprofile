@@ -2,6 +2,12 @@
 name = "sprofile"
 version = "0.1.0"
 edition = "2021"
+description = "A tool for accessing your spotify listening activity without ever leaving the terminal"
+authors = ["Sushant Ray <contact@neon.is-a.dev"]
+repository = "https://github.com/goodboyneon/goodboyneon"
+license = "MIT"
+keywords = ["spotify", "tui", "spotify-stats"]
+categories = ["command-line-utilities"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
