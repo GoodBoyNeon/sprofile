@@ -1,5 +1,5 @@
 use crate::utils::{read_secret, write_secret, SecretType};
-use anyhow::Result;
+// use anyhow::Result;
 use core::panic;
 use reqwest::Client;
 use rocket::{
@@ -15,11 +15,6 @@ use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
 
 const REDIRECT_URI: &str = "http://localhost:8585/callback";
-
-#[derive(Deserialize)]
-struct OAuthCallback {
-    code: String,
-}
 
 #[derive(Deserialize, Serialize)]
 struct TokenResponse {

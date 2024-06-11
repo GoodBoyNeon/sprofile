@@ -87,8 +87,8 @@ impl App {
 
 pub async fn init_app() -> Result<App, Box<dyn Error>> {
     let user_profile = get_user_profile().await?;
-    let top_tracks = get_top_tracks(TimeRange::Medium).await?;
-    let top_artists = get_top_artists(TimeRange::Medium).await?;
+    let top_tracks = get_top_tracks(TimeRange::Short).await?;
+    let top_artists = get_top_artists(TimeRange::Short).await?;
     let recently_played = get_recently_played().await?;
     let playlists = get_playlists().await?;
     Ok(App::new(
