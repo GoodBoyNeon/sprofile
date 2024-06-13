@@ -8,7 +8,7 @@
 
 ⚡ Blazingly fast TUI application for viewing your Spotify listening activity.
 
-[Getting started](#getting-started) • [Installation](#installation)
+[Getting started](#getting-started) • [Installation](#installation) • [Usage](#usage)
 
 </div>
 
@@ -23,7 +23,7 @@ The easiest way to get Sprofile running is by installing it from [crates.io](htt
 ```
 cargo install sprofile
 ```
-**However, if you want OS-specific installation guides, please refer to [Installation Section](#installation)**
+**However, if you want OS-specific installation guides, please refer to [Installation Section](#installation)**.
 
 ## Installation
 
@@ -65,6 +65,20 @@ cargo install sprofile
     cargo run
     ```
     > For convenience, you can create an executable for the package and run it from anywhere on the file system. 
+
+## Usage
+
+To run Sprofile, simply run `sprofile` in your shell:
+
+```
+sprofile
+```
+> If you installed Sprofile using cargo, run the executable instead:
+>
+>    ```
+>    ~/.cargo/bin/sprofile
+>    ```
+
 
 ## License
 [MIT](https://opensource.org/license/mit)
