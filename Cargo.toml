@@ -1,6 +1,6 @@
 [package]
 name = "sprofile"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "A tool for accessing your spotify listening activity without ever leaving the terminal"
 authors = ["Sushant Ray <contact@neon.is-a.dev"]
