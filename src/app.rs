@@ -1,7 +1,3 @@
-use std::error::Error;
-
-use ratatui::widgets::ListState;
-
 use crate::{
     controllers::fetch::{
         get_playlists, get_recently_played, get_top_artists, get_top_tracks, get_user_profile,
@@ -9,6 +5,8 @@ use crate::{
     },
     ui::Panel,
 };
+use ratatui::widgets::ListState;
+use std::error::Error;
 
 pub enum CurrentScreen {
     Main,
@@ -59,19 +57,19 @@ impl App {
             user_profile,
             top_artists: TopArtists {
                 data: top_artists_data,
-                state: ListState::default(),
+                state: ListState::default().with_selected(Some(0)),
             },
             top_tracks: TopTracks {
                 data: top_tracks_data,
-                state: ListState::default(),
+                state: ListState::default().with_selected(Some(0)),
             },
             recently_played: RecentlyPlayed {
                 data: recently_played_data,
-                state: ListState::default(),
+                state: ListState::default().with_selected(Some(0)),
             },
             playlists: Playlists {
                 data: playlists_data,
-                state: ListState::default(),
+                state: ListState::default().with_selected(Some(0)),
             },
         }
     }

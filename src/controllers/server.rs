@@ -1,11 +1,9 @@
-use crate::utils::{read_secret, write_secret, SecretType};
-// use anyhow::Result;
+use crate::secret::{read_secret, write_secret, SecretType};
 use core::panic;
 use reqwest::Client;
 use rocket::{
     get,
     http::Status,
-    launch,
     response::Redirect,
     routes,
     serde::{Deserialize, Serialize},
@@ -26,7 +24,7 @@ struct TokenResponse {
 
 #[get("/login")]
 fn login() -> Redirect {
-    let client_id = read_secret(crate::utils::SecretType::ClientId)
+    let client_id = read_secret(SecretType::ClientId)
         .expect("CLIENT_ID not set")
         .trim()
         .to_string();
@@ -55,11 +53,11 @@ async fn callback(
     shutdown: Shutdown,
     code: String,
 ) -> Result<&str, Status> {
-    let client_id = read_secret(crate::utils::SecretType::ClientId)
+    let client_id = read_secret(SecretType::ClientId)
         .expect("CLIENT_ID not set")
         .trim()
         .to_string();
-    let client_secret = read_secret(crate::utils::SecretType::ClientSecret)
+    let client_secret = read_secret(SecretType::ClientSecret)
         .expect("CLIENT_SECRET not set")
         .trim()
         .to_string();
@@ -69,12 +67,7 @@ async fn callback(
         ("grant_type", "authorization_code"),
         ("code", &code),
         ("redirect_uri", &redirect_uri),
-        // ("client_id", &client_id),
-        // ("client_secret", &client_secret),
     ];
-
-    // let combined_str = format!("{}:{}", client_id, client_secret);
-    // let encoded_str = base64::encode(&combined_str);
 
     let res_obj = client
         .post("https://accounts.spotify.com/api/token")
@@ -89,14 +82,8 @@ async fn callback(
     println!("{}", res_st);
     let res = res_obj.json::<TokenResponse>().await.unwrap();
 
-    let _ = write_secret(
-        crate::utils::SecretType::AccessToken,
-        &res.access_token.to_string(),
-    );
-    let _ = write_secret(
-        crate::utils::SecretType::RefreshToken,
-        &res.refresh_token.to_string(),
-    );
+    let _ = write_secret(SecretType::AccessToken, &res.access_token.to_string());
+    let _ = write_secret(SecretType::RefreshToken, &res.refresh_token.to_string());
     let unix_timestamp = match SystemTime::now().duration_since(UNIX_EPOCH) {
         Ok(t) => t.as_secs(),
         Err(_) => panic!("SystemTime set to before UNIX_EPOCH"),
@@ -110,9 +97,30 @@ async fn callback(
     Ok("Authorization Successful. You can close this window.")
 }
 
-#[launch]
-pub fn rocket() -> _ {
-    rocket::build()
+pub async fn launch() {
+    let server = rocket::build()
         .manage(Client::new())
         .mount("/", routes![login, callback])
+        .ignite()
+        .await
+        .expect("Rocket failed to ignite.");
+
+    let shutdown_handle = server.shutdown();
+
+    tokio::spawn(async move {
+        let _ = tokio::signal::ctrl_c().await;
+        shutdown_handle.notify();
+    });
+
+    if webbrowser::open("http://localhost:8585/login").is_ok() {
+        println!("Authentication server running on http://localhost:8585/login. Please check your browser ");
+    } else {
+        println!(
+            "Failed to open web browser. Please visit http://localhost:8585/login to authenticate"
+        );
+    };
+
+    if let Err(err) = server.launch().await {
+        eprintln!("Rocket didn't launch: {}", err);
+    }
 }

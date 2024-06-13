@@ -1,12 +1,11 @@
+use crate::app::App;
 use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout},
-    style::{Color, Modifier, Style, Stylize},
+    style::{Color, Style, Stylize},
     widgets::{Block, Borders, List},
     Frame,
 };
 use std::collections::HashMap;
-
-use crate::app::App;
 
 #[derive(Hash, PartialEq, Eq)]
 pub enum Panel {
@@ -54,6 +53,9 @@ pub fn ui(f: &mut Frame, app: &mut App) -> Result<(), Box<dyn std::error::Error>
         .split(panel_chunk_container[1]);
 
     /* PANELS */
+
+    let hl_style = Style::default().bold().on_dark_gray();
+
     let top_artists: Vec<String> = app
         .top_artists
         .data
@@ -62,12 +64,11 @@ pub fn ui(f: &mut Frame, app: &mut App) -> Result<(), Box<dyn std::error::Error>
         .enumerate()
         .map(|(i, artist)| format!("{:>2}. {}", i + 1, artist.name.clone()))
         .collect::<Vec<String>>();
-    // app.top_artists_state.select(Some(1));
+
     f.render_stateful_widget(
         List::new(top_artists)
             .block(create_panel_block(Panel::TopArtists, app))
-            .highlight_style(Style::default().add_modifier(Modifier::ITALIC))
-            .highlight_symbol(">>")
+            .highlight_style(hl_style)
             .repeat_highlight_symbol(true),
         panel_chunk_left[0],
         &mut app.top_artists.state,
@@ -81,12 +82,10 @@ pub fn ui(f: &mut Frame, app: &mut App) -> Result<(), Box<dyn std::error::Error>
         .enumerate()
         .map(|(i, track)| format!("{:>2}. {}", i + 1, track.name.clone()))
         .collect::<Vec<String>>();
-    // app.top_tracks_state.select(Some(1));
     f.render_stateful_widget(
         List::new(top_tracks_rows)
             .block(create_panel_block(Panel::TopSongs, app))
-            .highlight_style(Style::default().add_modifier(Modifier::ITALIC))
-            .highlight_symbol(">>")
+            .highlight_style(hl_style)
             .repeat_highlight_symbol(true),
         panel_chunk_left[1],
         &mut app.top_tracks.state,
@@ -100,12 +99,10 @@ pub fn ui(f: &mut Frame, app: &mut App) -> Result<(), Box<dyn std::error::Error>
         .enumerate()
         .map(|(i, ph)| format!("{:>2}. {}", i + 1, ph.track.name))
         .collect::<Vec<String>>();
-    // app.recently_played_state.select(Some(1));
     f.render_stateful_widget(
         List::new(recently_played_rows)
             .block(create_panel_block(Panel::RecentlyPlayed, app))
-            .highlight_style(Style::default().add_modifier(Modifier::ITALIC))
-            .highlight_symbol(">>")
+            .highlight_style(hl_style)
             .repeat_highlight_symbol(true),
         panel_chunk_right[0],
         &mut app.recently_played.state,
@@ -119,12 +116,10 @@ pub fn ui(f: &mut Frame, app: &mut App) -> Result<(), Box<dyn std::error::Error>
         .enumerate()
         .map(|(i, playlists)| format!("{:>2}. {}", i + 1, playlists.name))
         .collect::<Vec<String>>();
-    // app.playlists_state.select(Some(1));
     f.render_stateful_widget(
         List::new(playlists_rows)
             .block(create_panel_block(Panel::Playlists, app))
-            .highlight_style(Style::default().add_modifier(Modifier::ITALIC))
-            .highlight_symbol(">>")
+            .highlight_style(hl_style)
             .repeat_highlight_symbol(true),
         panel_chunk_right[1],
         &mut app.playlists.state,

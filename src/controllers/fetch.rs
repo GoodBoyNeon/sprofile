@@ -2,7 +2,7 @@ use reqwest::Client;
 use serde::Deserialize;
 use std::{error::Error, u8};
 
-use crate::utils::get_access_token;
+use crate::secret::get_access_token;
 
 const BASE_URL: &str = "https://api.spotify.com/v1";
 

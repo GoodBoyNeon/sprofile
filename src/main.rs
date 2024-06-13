@@ -1,17 +1,21 @@
+extern crate rocket;
+
 use app::{init_app, CurrentScreen};
-use controllers::server::rocket;
+use controllers::server;
 use crossterm::{
     event::{self, Event, KeyCode},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use ratatui::{backend::CrosstermBackend, Terminal};
-use std::io::{stdin, stdout, Write};
+use secret::{read_secret, write_secret, SecretType};
+use std::io::stdout;
 use ui::{ui, Panel};
-use utils::{read_secret, write_secret, SecretType};
+use utils::intro;
 
 mod app;
 mod controllers;
+mod secret;
 mod ui;
 mod utils;
 
@@ -20,67 +24,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Sync + Send + 'static>
     if (read_secret(SecretType::ClientId).is_none())
         || (read_secret(SecretType::ClientSecret).is_none())
     {
-        let mut client_id = String::new();
-        let mut client_secret = String::new();
-
-        let intro = [
-            "",
-            "",
-            "",
-            "* * Welcome to Sprofile! * *",
-            "To get started, you need to get a CLIENT_ID and CLIENT_SECRET.",
-            "1. Visit the Spotify App Creation Page: https://developer.spotify.com/dashboard/create",
-            "2. Fill in 'App name' and 'App description' with whatever you like",
-            "3. Add 'http://localhost:8585/callback' to 'Redirect URIs'",
-            "4. Check the 'Web API' option from available API/SDK list",
-            "5. Hit Save",
-            "6. After creating, click on your application from the spotify dashboard and go to 'Settings'",
-            "7. There you can access the Client ID and Client Secret.",
-            "",
-            "Please enter your CLIENT ID and CLIENT SECRET below",
-            ""
-        ];
-        for elem in intro.iter() {
-            println!("{}", elem);
-        }
-        print!("--> Client ID: ");
-        stdout().flush().expect("Failed to flush stdout");
-        stdin()
-            .read_line(&mut client_id)
-            .expect("Failed to read stdin");
-
-        print!("--> Client Secret: ");
-        stdout().flush().expect("Failed to flush stdout");
-        stdin()
-            .read_line(&mut client_secret)
-            .expect("Failed to read stdin");
-
-        let trimmed_client_id = client_id.trim();
-        let trimmed_client_secret = client_secret.trim();
-
-        let _ = write_secret(SecretType::ClientId, trimmed_client_id);
-        let _ = write_secret(SecretType::ClientSecret, trimmed_client_secret);
+        let (client_id, client_secret) = intro();
+        let _ = write_secret(SecretType::ClientId, &client_id);
+        let _ = write_secret(SecretType::ClientSecret, &client_secret);
     }
 
     if read_secret(SecretType::AccessToken).is_none() {
-        let rocket = rocket().ignite().await.expect("Rocket didn't ignite.");
-
-        let shutdown_handle = rocket.shutdown();
-
-        tokio::spawn(async move {
-            let _ = tokio::signal::ctrl_c().await;
-            shutdown_handle.notify();
-        });
-
-        if webbrowser::open("http://localhost:8585/login").is_ok() {
-            println!("Authentication server running on http://localhost:8585/login. Please check your browser ");
-        } else {
-            println!("Failed to open web browser. Please visit http://localhost:8585/login to authenticate");
-        };
-
-        if let Err(err) = rocket.launch().await {
-            eprintln!("Rocket didn't launch: {}", err);
-        }
+        server::launch().await;
     }
 
     let mut stdout = stdout();
