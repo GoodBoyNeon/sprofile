@@ -1,8 +1,9 @@
-use crate::app::App;
+use crate::{app::App, controllers::fetch::TimeRange};
 use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout},
     style::{Color, Style, Stylize},
-    widgets::{Block, Borders, List},
+    text::Line,
+    widgets::{Block, BorderType, Borders, List},
     Frame,
 };
 use std::collections::HashMap;
@@ -12,7 +13,7 @@ pub enum Panel {
     Playlists,
     RecentlyPlayed,
     TopArtists,
-    TopSongs,
+    TopTracks,
 }
 
 pub fn ui(f: &mut Frame, app: &mut App) -> Result<(), Box<dyn std::error::Error>> {
@@ -36,10 +37,18 @@ pub fn ui(f: &mut Frame, app: &mut App) -> Result<(), Box<dyn std::error::Error>
 
     f.render_widget(title_blk, main_chunks[0]);
 
+    let footer_blk = Block::default()
+        .style(Style::default())
+        .title("F1: all time / F2: 6 months / F3: 4 weeks / 1-2-3-4: change panel / q: quit")
+        .title_alignment(Alignment::Center)
+        .title_style(Style::default().dark_gray());
+
+    f.render_widget(footer_blk, main_chunks[2]);
+
     // Main screen
     let panel_chunk_container = Layout::default()
         .direction(Direction::Horizontal)
-        .constraints(vec![Constraint::Percentage(40), Constraint::Percentage(60)])
+        .constraints(vec![Constraint::Percentage(50), Constraint::Percentage(50)])
         .split(main_chunks[1]);
 
     let panel_chunk_left = Layout::default()
@@ -84,7 +93,7 @@ pub fn ui(f: &mut Frame, app: &mut App) -> Result<(), Box<dyn std::error::Error>
         .collect::<Vec<String>>();
     f.render_stateful_widget(
         List::new(top_tracks_rows)
-            .block(create_panel_block(Panel::TopSongs, app))
+            .block(create_panel_block(Panel::TopTracks, app))
             .highlight_style(hl_style)
             .repeat_highlight_symbol(true),
         panel_chunk_left[1],
@@ -129,28 +138,103 @@ pub fn ui(f: &mut Frame, app: &mut App) -> Result<(), Box<dyn std::error::Error>
 }
 
 fn create_panel_block(panel: Panel, app: &App) -> Block<'static> {
+    let block_style = match panel == app.current_panel {
+        true => Style::default(),
+        false => Style::default().gray(),
+    };
     let border_style = match panel == app.current_panel {
         true => Style::default().fg(Color::Green),
         false => Style::default(),
     };
-    let title_style = match panel == app.current_panel {
+    let border_type = match panel == app.current_panel {
+        true => BorderType::Thick,
+        false => BorderType::Plain,
+    };
+    let block_name_style = match panel == app.current_panel {
         true => Style::new().bold().fg(Color::Cyan),
         false => Style::new().fg(Color::Cyan),
     };
 
     let mut title_lookup: HashMap<Panel, &str> = HashMap::new();
 
-    title_lookup.insert(Panel::TopArtists, "[ 1 ] Top Artists");
-    title_lookup.insert(Panel::TopSongs, "[ 2 ] Top Songs");
-    title_lookup.insert(Panel::RecentlyPlayed, "[ 3 ] Recent Songs");
-    title_lookup.insert(Panel::Playlists, "[ 4 ] Your Playlists");
+    title_lookup.insert(Panel::TopArtists, "Top Artists (1)");
+    title_lookup.insert(Panel::TopTracks, "Top Songs (2)");
+    title_lookup.insert(Panel::RecentlyPlayed, "Recent Songs (3)");
+    title_lookup.insert(Panel::Playlists, "Your Playlists (4)");
 
-    let title = title_lookup.get(&panel).copied().unwrap_or("");
+    let block_name = title_lookup.get(&panel).copied().unwrap_or("");
 
-    Block::default()
-        .title(title)
-        .title_style(title_style)
+    let base_blk = Block::default()
+        .title(block_name)
+        .style(block_style)
+        .title_style(block_name_style)
+        .title_alignment(Alignment::Left)
         .borders(Borders::ALL)
         .border_style(border_style)
-        .border_type(ratatui::widgets::BorderType::Rounded)
+        .border_type(border_type);
+
+    return match panel {
+        Panel::TopArtists => base_blk
+            .title(
+                Line::styled(
+                    "<all time>",
+                    get_right_title_style(TimeRange::Long, Panel::TopArtists, app),
+                )
+                .right_aligned(),
+            )
+            .title(
+                Line::styled(
+                    "<6months>",
+                    get_right_title_style(TimeRange::Medium, Panel::TopArtists, app),
+                )
+                .right_aligned(),
+            )
+            .title(
+                Line::styled(
+                    "<4weeks>",
+                    get_right_title_style(TimeRange::Short, Panel::TopArtists, app),
+                )
+                .right_aligned(),
+            ),
+        Panel::TopTracks => base_blk
+            .title(
+                Line::styled(
+                    "<all time>",
+                    get_right_title_style(TimeRange::Long, Panel::TopTracks, app),
+                )
+                .right_aligned(),
+            )
+            .title(
+                Line::styled(
+                    "<6month>",
+                    get_right_title_style(TimeRange::Medium, Panel::TopTracks, app),
+                )
+                .right_aligned(),
+            )
+            .title(
+                Line::styled(
+                    "<4week>",
+                    get_right_title_style(TimeRange::Short, Panel::TopTracks, app),
+                )
+                .right_aligned(),
+            ),
+        _ => base_blk,
+    };
+}
+fn get_right_title_style(time_range: TimeRange, panel: Panel, app: &App) -> Style {
+    if panel != app.current_panel {
+        Style::default().not_bold().white()
+    } else {
+        match panel {
+            Panel::TopArtists => match app.top_artists.cur_time_range == time_range {
+                true => Style::default().green().bold(),
+                false => Style::default().not_bold(),
+            },
+            Panel::TopTracks => match app.top_tracks.cur_time_range == time_range {
+                true => Style::default().green().bold(),
+                false => Style::default().not_bold(),
+            },
+            _ => Style::default(),
+        }
+    }
 }

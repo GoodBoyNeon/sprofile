@@ -39,7 +39,7 @@ pub async fn get_user_profile() -> Result<UserProfile, Box<dyn Error>> {
     Ok(res)
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, PartialEq)]
 pub enum TimeRange {
     Short,
     Medium,

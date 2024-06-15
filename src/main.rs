@@ -1,7 +1,7 @@
 extern crate rocket;
 
 use app::{init_app, CurrentScreen};
-use controllers::server;
+use controllers::{fetch::TimeRange, server};
 use crossterm::{
     event::{self, Event, KeyCode},
     execute,
@@ -46,7 +46,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Sync + Send + 'static>
                     let _ = ui(f, &mut app);
                 });
                 if let Event::Key(key) = event::read()? {
-                    // dbg!();
                     if key.kind == event::KeyEventKind::Release {
                         continue;
                     }
@@ -77,11 +76,55 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Sync + Send + 'static>
                     match app.current_screen {
                         /* Main Screen Keybinds */
                         CurrentScreen::Main => match key.code {
-                            KeyCode::Char('q') => break,
-                            KeyCode::Char('1') => app.current_panel = Panel::TopArtists,
-                            KeyCode::Char('2') => app.current_panel = Panel::TopSongs,
-                            KeyCode::Char('3') => app.current_panel = Panel::RecentlyPlayed,
-                            KeyCode::Char('4') => app.current_panel = Panel::Playlists,
+                            KeyCode::Char('1') => {
+                                app.current_panel = Panel::TopArtists;
+                                futures::future::ready(()).await
+                            }
+                            KeyCode::Char('2') => {
+                                app.current_panel = Panel::TopTracks;
+                                futures::future::ready(()).await
+                            }
+                            KeyCode::Char('3') => {
+                                app.current_panel = Panel::RecentlyPlayed;
+                                futures::future::ready(()).await
+                            }
+                            KeyCode::Char('4') => {
+                                app.current_panel = Panel::Playlists;
+                                futures::future::ready(()).await
+                            }
+                            KeyCode::F(1) => match app.current_panel {
+                                Panel::TopArtists => {
+                                    app.top_artists.cur_time_range = TimeRange::Long;
+                                    app.update_top_artist_data(TimeRange::Long).await
+                                }
+                                Panel::TopTracks => {
+                                    app.top_tracks.cur_time_range = TimeRange::Long;
+                                    app.update_top_tracks_data(TimeRange::Long).await
+                                }
+                                _ => {}
+                            },
+                            KeyCode::F(2) => match app.current_panel {
+                                Panel::TopArtists => {
+                                    app.top_artists.cur_time_range = TimeRange::Medium;
+                                    app.update_top_artist_data(TimeRange::Medium).await
+                                }
+                                Panel::TopTracks => {
+                                    app.top_tracks.cur_time_range = TimeRange::Medium;
+                                    app.update_top_tracks_data(TimeRange::Medium).await
+                                }
+                                _ => {}
+                            },
+                            KeyCode::F(3) => match app.current_panel {
+                                Panel::TopArtists => {
+                                    app.top_artists.cur_time_range = TimeRange::Short;
+                                    app.update_top_artist_data(TimeRange::Short).await
+                                }
+                                Panel::TopTracks => {
+                                    app.top_tracks.cur_time_range = TimeRange::Short;
+                                    app.update_top_tracks_data(TimeRange::Short).await
+                                }
+                                _ => {}
+                            },
                             _ => {}
                         },
                     }
