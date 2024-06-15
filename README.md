@@ -14,7 +14,7 @@
 
 ## Getting Started
 
-<img src="assets/banner.png" />
+<img src="assets/banner-0.2.0.png" />
 
 <br />
 <br />
@@ -32,6 +32,10 @@ cargo install sprofile
     Use our [AUR Package](https://aur.archlinux.org/packages/sprofile) to install Sprofile on Arch Linux based machines.
     ```
     yay -S sprofile
+    ```
+- ### Cargo
+    ```
+    cargo install sprofile
     ```
 - ### Build from source
 
@@ -73,7 +77,7 @@ To run Sprofile, simply run `sprofile` in your shell:
 ```
 sprofile
 ```
-> If you installed Sprofile using cargo, run the executable instead:
+> If you installed Sprofile using cargo and running `sprofile` doesn't work, run the executable instead:
 >
 >    ```
 >    ~/.cargo/bin/sprofile
