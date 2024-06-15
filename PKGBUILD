@@ -1,8 +1,8 @@
 # Maintainer: Sushant Ray <contact@neon.is-a.dev>
 
 pkgname='sprofile'
-pkgver=0.1.1
-pkgrel=2
+pkgver=0.2.0
+pkgrel=0
 epoch=
 pkgdesc="A tool for accessing your spotify statistics without ever leaving the terminal"
 arch=('x86_64')
