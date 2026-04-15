@@ -12,6 +12,9 @@
 
 </div>
 
+> [!IMPORTANT]
+> 🚨 **Development of this project is paused.** See #3
+
 ## Getting Started
 
 <img src="assets/banner-0.2.0.png" />
