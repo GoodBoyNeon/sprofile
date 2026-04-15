@@ -13,7 +13,7 @@
 </div>
 
 > [!IMPORTANT]
-> 🚨 **Development of this project is paused.** See #3
+> 🚨 **Development of this project is paused.** See [#3](https://github.com/goodboyneon/sprofile/issues/3).
 
 ## Getting Started
 
